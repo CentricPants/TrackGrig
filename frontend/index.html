@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PhantomTrack Fleet Dashboard</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #0f1420;
+    color: #e7ebf3;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* --- Login screen --- */
+  #login-screen {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0f1420;
+    z-index: 100;
+  }
+  #login-box {
+    background: #141a29;
+    border: 1px solid #232c40;
+    border-radius: 12px;
+    padding: 32px;
+    width: 320px;
+  }
+  #login-box h1 {
+    font-size: 18px;
+    margin: 0 0 4px;
+  }
+  #login-box p {
+    font-size: 13px;
+    color: #94a3bd;
+    margin: 0 0 20px;
+  }
+  #login-box input {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    background: #1c2436;
+    border: 1px solid #2a3550;
+    border-radius: 8px;
+    color: #e7ebf3;
+    font-size: 14px;
+  }
+  #login-box button {
+    width: 100%;
+    padding: 10px 12px;
+    background: #4b9bff;
+    border: none;
+    border-radius: 8px;
+    color: #08101f;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    margin-top: 6px;
+  }
+  #login-box button:hover { background: #6bafff; }
+  #login-error {
+    color: #ff5c72;
+    font-size: 12px;
+    margin-top: 10px;
+    min-height: 16px;
+  }
+
+  /* --- Main dashboard --- */
+  #app {
+    display: none;
+    height: 100vh;
+    width: 100vw;
+  }
+  #app.visible { display: flex; }
+  #map { flex: 1; }
+  #sidebar {
+    width: 340px;
+    background: #141a29;
+    border-left: 1px solid #232c40;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  #sidebar h2 {
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #9fb0d0;
+    padding: 16px 16px 8px;
+    margin: 0;
+  }
+  #device-list, #alert-list {
+    overflow-y: auto;
+    padding: 0 12px 12px;
+  }
+  #device-list { flex: 1; border-bottom: 1px solid #232c40; }
+  #alert-list { flex: 1; }
+  .device-item, .alert-item {
+    background: #1c2436;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .device-item:hover { background: #232d45; }
+  .device-item .id { font-weight: 600; color: #7fd1ff; }
+  .device-item .meta { color: #94a3bd; margin-top: 2px; }
+  .alert-item { border-left: 3px solid #ff5c72; cursor: default; }
+  .alert-item.SPEED { border-left-color: #ffb454; }
+  .alert-item.TELEPORT { border-left-color: #ff5c72; }
+  .alert-item.GEOFENCE { border-left-color: #b98cff; }
+  .alert-item .type { font-weight: 700; font-size: 11px; letter-spacing: 0.04em; }
+  .alert-item .desc { margin-top: 3px; color: #c4cbdc; }
+  .alert-item .time { margin-top: 3px; color: #6b7690; font-size: 11px; }
+  #status {
+    padding: 10px 16px;
+    font-size: 12px;
+    color: #6b7690;
+    border-top: 1px solid #232c40;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  #status .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: #6b7690;
+  }
+  #status.connected .dot { background: #4ade80; }
+  #status.disconnected .dot { background: #ff5c72; }
+  #logout-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: #6b7690;
+    cursor: pointer;
+    font-size: 12px;
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div id="login-box">
+    <h1>PhantomTrack</h1>
+    <p>Sign in to view the fleet dashboard</p>
+    <input id="login-username" type="text" placeholder="Username" value="admin" autocomplete="username">
+    <input id="login-password" type="password" placeholder="Password" value="admin123" autocomplete="current-password">
+    <button id="login-submit">Sign in</button>
+    <div id="login-error"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div id="map"></div>
+  <div id="sidebar">
+    <h2>Fleet (<span id="device-count">0</span>)</h2>
+    <div id="device-list"></div>
+    <h2>Alerts</h2>
+    <div id="alert-list"></div>
+    <div id="status">
+      <span class="dot"></span>
+      <span id="status-text">Connecting...</span>
+      <button id="logout-btn">Sign out</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="map.js"></script>
+</body>
+</html>

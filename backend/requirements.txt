@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+paho-mqtt
+python-jose[cryptography]
+passlib
+python-multipart
+websockets
